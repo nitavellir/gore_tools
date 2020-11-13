@@ -2,9 +2,7 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
-	"strings"
 )
 
 var (
@@ -28,6 +26,6 @@ func main() {
 	if status := h.execute(); status != 0 {
 		log.Fatal(h.ErrorMsg)
 	} else {
-		fmt.Println(strings.Join(h.Outputs, "\n"))
+		h.outputResponse()
 	}
 }

@@ -51,3 +51,7 @@ func (h *Handler) sendError(err_msg string) int {
 	h.ErrorMsg = err_msg
 	return 1
 }
+
+func (h *Handler) outputResponse() {
+	fmt.Println(fmt.Sprintf("------ RESULT ------\n%s", strings.Join(h.Outputs, "\n")))
+}
