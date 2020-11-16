@@ -6,20 +6,23 @@ import (
 )
 
 var (
-	target_str string
+	targetStr string
+	targetDir string
 )
 
 func main() {
 	//arg
-	flag.StringVar(&target_str, "s", "", "Specify the phrase you want to find.")
+	flag.StringVar(&targetStr, "s", "", "Required: Specify the phrase you want to find.")
+	flag.StringVar(&targetDir, "d", "", "Specify the directory you want to dig.")
 	flag.Parse()
-	if target_str == "" {
+	if targetStr == "" {
 		log.Fatal("The phrase is not specified.")
 	}
 
 	//init handler
 	h := &Handler{
-		TargetStr: target_str,
+		TargetStr: targetStr,
+		TargetDir: targetDir,
 	}
 
 	//execute
