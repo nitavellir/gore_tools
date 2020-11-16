@@ -56,5 +56,8 @@ func (h *Handler) sendError(err_msg string) int {
 }
 
 func (h *Handler) outputResponse() {
+	if len(h.Warnings) > 0 {
+		fmt.Println(fmt.Sprintf("------ WARNING ------\n%s", strings.Join(h.Warnings, "\n")))
+	}
 	fmt.Println(fmt.Sprintf("------ RESULT ------\n%s", strings.Join(h.Outputs, "\n")))
 }
