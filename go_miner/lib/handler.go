@@ -10,6 +10,7 @@ import (
 type Handler struct {
 	TargetStr string
 	ErrorMsg  string
+	Warnings  []string
 	Outputs   []string
 }
 
@@ -31,12 +32,14 @@ func (h *Handler) execute() int {
 
 		file, err := os.Open(file_info.Name())
 		if err != nil {
-			return h.sendError("Can not open: " + file_info.Name())
+			h.Warnings = append(h.Warnings, "Can not open: "+file_info.Name())
+			continue
 		}
 
 		bytes, err := ioutil.ReadAll(file)
 		if err != nil {
-			return h.sendError("Can not read: " + file_info.Name())
+			h.Warnings = append(h.Warnings, "Can not read: "+file_info.Name())
+			continue
 		}
 
 		if strings.Contains(string(bytes), h.TargetStr) {
