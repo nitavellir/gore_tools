@@ -20,13 +20,14 @@ type Handler struct {
 
 func (h *Handler) recursiveReadDir(dir string, infos []os.FileInfo) {
 	for _, info := range infos {
-		h.FileInfos = append(h.FileInfos, info)
 		if info.IsDir() {
 			childInfos, err := ioutil.ReadDir(filepath.Join(dir, info.Name()))
 			if err != nil {
 				continue
 			}
 			h.recursiveReadDir(filepath.Join(dir, info.Name()), childInfos)
+		} else {
+			h.FileInfos = append(h.FileInfos, info)
 		}
 	}
 }
@@ -48,7 +49,7 @@ func (h *Handler) execute() int {
 		if err != nil {
 			return h.sendError("Can not get files from the current directory.")
 		}
-		h.FileInfos = infos
+		h.recursiveReadDir(wd, infos)
 	}
 
 	for _, fileInfo := range h.FileInfos {
