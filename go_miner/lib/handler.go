@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -12,18 +13,32 @@ type Handler struct {
 	TargetStr string
 	TargetDir string
 	ErrorMsg  string
+	FileInfos []os.FileInfo
 	Warnings  []string
 	Outputs   []string
 }
 
+func (h *Handler) recursiveReadDir(dir string, infos []os.FileInfo) {
+	for _, info := range infos {
+		if info.IsDir() {
+			childInfos, err := ioutil.ReadDir(filepath.Join(dir, info.Name()))
+			if err != nil {
+				continue
+			}
+			h.recursiveReadDir(filepath.Join(dir, info.Name()), childInfos)
+		} else {
+			h.FileInfos = append(h.FileInfos, info)
+		}
+	}
+}
+
 func (h *Handler) execute() int {
-	fileInfos := []os.FileInfo{}
 	if h.TargetDir != "" {
 		infos, err := ioutil.ReadDir(h.TargetDir)
 		if err != nil {
 			return h.sendError("Can not get the specified directory.")
 		}
-		fileInfos = infos
+		h.recursiveReadDir(h.TargetDir, infos)
 	} else {
 		wd, err := os.Getwd()
 		if err != nil {
@@ -34,10 +49,10 @@ func (h *Handler) execute() int {
 		if err != nil {
 			return h.sendError("Can not get files from the current directory.")
 		}
-		fileInfos = infos
+		h.recursiveReadDir(wd, infos)
 	}
 
-	for _, fileInfo := range fileInfos {
+	for _, fileInfo := range h.FileInfos {
 		if fileInfo.IsDir() {
 			continue
 		}
