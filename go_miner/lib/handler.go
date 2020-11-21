@@ -13,7 +13,7 @@ type Handler struct {
 	TargetStr string
 	TargetDir string
 	ErrorMsg  string
-	FileInfos []os.FileInfo
+	FileInfos []string
 	Warnings  []string
 	Outputs   []string
 }
@@ -27,7 +27,7 @@ func (h *Handler) recursiveReadDir(dir string, infos []os.FileInfo) {
 			}
 			h.recursiveReadDir(filepath.Join(dir, info.Name()), childInfos)
 		} else {
-			h.FileInfos = append(h.FileInfos, info)
+			h.FileInfos = append(h.FileInfos, filepath.Join(dir, info.Name()))
 		}
 	}
 }
@@ -53,24 +53,20 @@ func (h *Handler) execute() int {
 	}
 
 	for _, fileInfo := range h.FileInfos {
-		if fileInfo.IsDir() {
-			continue
-		}
-
-		file, err := os.Open(fileInfo.Name())
+		file, err := os.Open(fileInfo)
 		if err != nil {
-			h.Warnings = append(h.Warnings, "Can not open: "+fileInfo.Name())
+			h.Warnings = append(h.Warnings, "Can not open: "+fileInfo)
 			continue
 		}
 
 		bytes, err := ioutil.ReadAll(file)
 		if err != nil {
-			h.Warnings = append(h.Warnings, "Can not read: "+fileInfo.Name())
+			h.Warnings = append(h.Warnings, "Can not read: "+fileInfo)
 			continue
 		}
 
 		if strings.Contains(string(bytes), h.TargetStr) {
-			h.Outputs = append(h.Outputs, fmt.Sprintf("Found \"%s\" in %s", h.TargetStr, fileInfo.Name()))
+			h.Outputs = append(h.Outputs, fmt.Sprintf("Found \"%s\" in %s", h.TargetStr, fileInfo))
 		}
 	}
 
